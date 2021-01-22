@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+printf '\necho "AAGTACGTGCAGTGAGTAGTAGACCTGACGTAGACCGATATAAGTAGCTAε" | bin/matchseq -T:AGTA -x:5 -y:7\n'
+echo "AAGTACGTGCAGTGAGTAGTAGACCTGACGTAGACCGATATAAGTAGCTAε" | bin/matchseq -T:AGTA -x:5 -y:7
