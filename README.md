@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/tempcke/matchseq)](https://goreportcard.com/report/github.com/tempcke/matchseq)
+
 # Output Nucleotide Sequences with Context
 
 Consider nucleotide sequences that contain the possible characters: 'A', 'C', 'G', 'T', and the end-of-sequence character: 'ε'.

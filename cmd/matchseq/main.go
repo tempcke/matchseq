@@ -108,7 +108,7 @@ Other Options
 		Print NUM bytes of trailing context after matching target
 
 	-h, --help, help
-		Print this useage information
+		Print this usage information
 
 Example 1
 	echo "ACACGTCAε" | matchseq -T:ACGT -x:1 -y:2
