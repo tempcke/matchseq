@@ -6,35 +6,25 @@ import (
 	"testing"
 )
 
-func TestByteWindow(t *testing.T) {
-	w := newByteWindow(3)
+func TestWindow(t *testing.T) {
+	w := newWindow(3)
 	var (
-		a = byte('A')
-		b = byte('B')
-		c = byte('C')
-		d = byte('D')
+		a = 'A'
+		b = 'B'
+		c = '了'
+		d = 'D'
 	)
 	w.push(a)
 	w.push(b)
-	assertEqual(t, a, w.bytes[1])
-	assertEqual(t, b, w.bytes[2])
+	assertEqual(t, a, w.runes[1])
+	assertEqual(t, b, w.runes[2])
 	assertEqual(t, "AB", w.String()) // ensure first zero bit is trimmed
-	assertEqual(t, "AB", string(w.bytes[1:]))
-	assertEqual(t, 3, len(w.bytes))
+	assertEqual(t, "AB", string(w.runes[1:]))
+	assertEqual(t, 3, len(w.runes))
 
 	w.push(c)
 	w.push(d)
-	assertEqual(t, "BCD", w.String())
-}
-
-func assertEqual(t *testing.T, expected, actual interface{}) {
-	t.Helper()
-	if expected != actual {
-		t.Fatalf(
-			"Not Equal\nWant: %v\t%T\nGot:  %v\t%T",
-			expected, expected,
-			actual, actual)
-	}
+	assertEqual(t, "B了D", w.String())
 }
 
 func TestStreamGrep(t *testing.T) {
@@ -68,6 +58,8 @@ func TestStreamGrep(t *testing.T) {
 				"ATATA AGTA GCTA",
 			},
 		},
+		// rune support?
+		{"的是了见", "是了", 1, 1, []string{"的 是了 见"}},
 	}
 
 	eos := 'ε' // end of stream rune
@@ -84,5 +76,17 @@ func TestStreamGrep(t *testing.T) {
 			}
 			assertEqual(t, len(tc.expected), i)
 		})
+	}
+}
+
+// assertions
+
+func assertEqual(t *testing.T, expected, actual interface{}) {
+	t.Helper()
+	if expected != actual {
+		t.Fatalf(
+			"Not Equal\nWant: %v\t%T\nGot:  %v\t%T",
+			expected, expected,
+			actual, actual)
 	}
 }

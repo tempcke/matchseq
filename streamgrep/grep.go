@@ -2,43 +2,42 @@ package streamgrep
 
 import (
 	"bufio"
-	"bytes"
 	"io"
 	"log"
 	"strings"
 )
 
-type byteWindow struct {
-	bytes []byte
+type window struct {
+	runes []rune
 }
 
-func newByteWindow(cap int) *byteWindow {
-	return &byteWindow{
-		bytes: make([]byte, cap, cap),
+func newWindow(cap int) *window {
+	return &window{
+		runes: make([]rune, cap, cap),
 	}
 }
 
-func (w *byteWindow) push(b byte) {
-	w.bytes = append(w.bytes[1:], b)
+func (w *window) push(b rune) {
+	w.runes = append(w.runes[1:], b)
 }
 
-func (w *byteWindow) String() string {
-	return trimmedString(w.bytes)
+func (w *window) String() string {
+	return trimmedString(w.runes)
 }
 
-func trimmedString(byteList []byte) string {
-	return string(bytes.Trim(byteList, "\x00"))
+func trimmedString(runeList []rune) string {
+	return strings.Trim(string(runeList), "\x00")
 }
 
-// StreamGrep allows you to grep a stream of bytes
+// StreamGrep allows you to grep a stream of runes
 type StreamGrep struct {
-	target string
+	target []rune
 	b, a   int // before and after context length
 }
 
 // NewStreamGrep creates and returns a streamGrep
 func NewStreamGrep(target string, before, after int) StreamGrep {
-	return StreamGrep{target, before, after}
+	return StreamGrep{[]rune(target), before, after}
 }
 
 // Grep works similar to *nix grep but on an io.Reader such as os.Stdin
@@ -49,41 +48,47 @@ func (g StreamGrep) Grep(stream io.Reader, c chan<- string, eos rune) {
 	start, stop := g.b, g.b+len(g.target)
 
 	in := bufio.NewReader(stream)
-	w := newByteWindow(g.b + len(g.target) + g.a)
+	w := newWindow(g.b + len(g.target) + g.a)
+
+	checkAndHandleMatch := func() {
+		s := w.runes[start:stop]
+		for i := range s {
+			if s[i] != g.target[i] {
+				return
+			}
+		}
+		c <- format(w.runes, start, stop)
+	}
+
 	for {
 		r, _, err := in.ReadRune()
 		if err == io.EOF || r == eos {
 			for i := 0; i < g.a; i++ {
-				w.push(byte(0))
-				if string(w.bytes[start:stop]) == g.target {
-					c <- format(w.bytes, start, stop)
-				}
+				w.push(rune(0))
+				checkAndHandleMatch()
 			}
 			break
 		}
 		if err != nil {
 			log.Fatal(err)
 		}
-		w.push(byte(r))
-
-		if string(w.bytes[start:stop]) == g.target {
-			c <- format(w.bytes, start, stop)
-		}
+		w.push(r)
+		checkAndHandleMatch()
 	}
 }
 
-func format(bytes []byte, left, right int) string {
+func format(runes []rune, left, right int) string {
 	var sb strings.Builder
 
-	prefix := trimmedString(bytes[:left])
+	prefix := trimmedString(runes[:left])
 	if len(prefix) > 0 {
 		sb.WriteString(prefix + " ")
 	}
 
-	target := string(bytes[left:right])
+	target := string(runes[left:right])
 	sb.WriteString(target)
 
-	suffix := trimmedString(bytes[right:])
+	suffix := trimmedString(runes[right:])
 	if len(suffix) > 0 {
 		sb.WriteString(" " + suffix)
 	}
