@@ -82,11 +82,11 @@ func isHelp(h string) bool {
 }
 
 func run(stream io.Reader, cfg conf) error {
-	c := make(chan string)
+	c := make(chan streamgrep.Match)
 	g := streamgrep.NewStreamGrep(cfg.target, cfg.x, cfg.y)
 	go g.Grep(os.Stdin, c, eos)
-	for s := range c { // should block until chan is closed
-		fmt.Println(s)
+	for m := range c { // should block until chan is closed
+		fmt.Println(m.String())
 	}
 	return nil
 }

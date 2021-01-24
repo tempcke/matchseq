@@ -18,7 +18,7 @@ func TestWindow(t *testing.T) {
 	w.push(b)
 	assertEqual(t, a, w.runes[1])
 	assertEqual(t, b, w.runes[2])
-	assertEqual(t, "AB", w.String()) // ensure first zero bit is trimmed
+	assertEqual(t, "AB", w.String()) // ensure first zero byte is trimmed
 	assertEqual(t, "AB", string(w.runes[1:]))
 	assertEqual(t, 3, len(w.runes))
 
@@ -58,7 +58,7 @@ func TestStreamGrep(t *testing.T) {
 				"ATATA AGTA GCTA",
 			},
 		},
-		// rune support?
+		// 	// rune support?
 		{"的是了见", "是了", 1, 1, []string{"的 是了 见"}},
 	}
 
@@ -66,12 +66,12 @@ func TestStreamGrep(t *testing.T) {
 	for _, tc := range tt {
 		testName := fmt.Sprintf("%v: %v", tc.input, tc.expected)
 		t.Run(testName, func(t *testing.T) {
-			c := make(chan string)
+			c := make(chan Match)
 			g := NewStreamGrep(tc.target, tc.b, tc.a)
 			go g.Grep(strings.NewReader(tc.input), c, eos)
 			i := 0
-			for s := range c { // should block until chan is closed
-				assertEqual(t, tc.expected[i], s)
+			for match := range c { // should block until chan is closed
+				assertEqual(t, tc.expected[i], match.String())
 				i++
 			}
 			assertEqual(t, len(tc.expected), i)
