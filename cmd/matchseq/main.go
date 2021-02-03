@@ -83,10 +83,16 @@ func isHelp(h string) bool {
 
 func run(stream io.Reader, cfg conf) error {
 	c := make(chan streamgrep.Match)
+	recorder := NewRecorder(stream)
 	g := streamgrep.NewStreamGrep(cfg.target, cfg.x, cfg.y)
-	go g.Grep(os.Stdin, c, eos)
+	go g.Grep(recorder, c, eos)
+	fmt.Print("\nFinding Matches....\n")
 	for m := range c { // should block until chan is closed
 		fmt.Println(m.String())
+	}
+	fmt.Println("\nNucleotide Histogram:\n Type\tCount")
+	for b, n := range recorder.History() {
+		fmt.Printf("   %s\t%4v\n", string(b), n)
 	}
 	return nil
 }

@@ -1,6 +1,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/tempcke/matchseq)](https://goreportcard.com/report/github.com/tempcke/matchseq)
 
-# Output Nucleotide Sequences with Context
+# Phase I - Output Nucleotide Sequences with Context
 
 Consider nucleotide sequences that contain the possible characters: 'A', 'C', 'G', 'T', and the end-of-sequence character: 'ε'.
 
@@ -38,3 +38,20 @@ should print the following lines:
     ATATA AGTA GCTA
 
 Notice that the 2nd and 3rd lines display overlapping targets and that the 1st and 4th show fewer than *x* and *y* elements of context, respectively.
+
+
+# Phase II - Histagram
+
+In addition to the output from Phase I include a histagram showing how many times each nucleotide was seen.
+
+## Example
+
+    echo "AAGTACGTGCAGTGAGTAGTAGACCTGACGTAGACCGATATAAGTAGCTAε" | matchseq -T:AGTA -x:5 -y:7
+
+Should also communicate that `A` was seen 17 times, `C` 8 times, `G` 14 times, and `T` 11 times
+
+# Execution instructions
+
+- `make build` will create the bin/matchseq binary
+- `make test` will execute all tests
+- `make example` will execute the final example to demonstrate it is working.

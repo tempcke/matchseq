@@ -5,7 +5,7 @@ example: build  ## Run challenge example.
 	./example.sh
 
 build: test     ## Build /bin/matchseq binary.
-	go build -o bin/matchseq cmd/matchseq/main.go
+	go build -o bin/matchseq cmd/matchseq/*.go
 
 test:           ## Run tests.
 	go test -coverprofile /tmp/rpm-test-coverage ./...
